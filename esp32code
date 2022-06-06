@@ -1,0 +1,92 @@
+//////////////////////////////////////////////
+//        RemoteXY include library          //
+//////////////////////////////////////////////
+
+// RemoteXY select connection mode and include library 
+#define REMOTEXY_MODE__ESP32CORE_BLE
+#include <BLEDevice.h>
+
+#include <RemoteXY.h>
+
+// RemoteXY connection settings 
+#define REMOTEXY_BLUETOOTH_NAME "yourRemoteXYname"
+
+
+// RemoteXY configurate  
+#pragma pack(push, 1)
+uint8_t RemoteXY_CONF[] =   // 50 bytes
+  {  };  //complete here your app conf code
+  
+// this structure defines all the variables and events of your control interface 
+struct {
+
+    // input variables
+  uint8_t rgb_1_r; // =0..255 Red color value 
+  uint8_t rgb_1_g; // =0..255 Green color value 
+  uint8_t rgb_1_b; // =0..255 Blue color value 
+
+ 
+
+    // other variable
+  uint8_t connect_flag;  // =1 if wire connected, else =0 
+
+} RemoteXY;
+#pragma pack(pop)
+
+/////////////////////////////////////////////
+//           END RemoteXY include          //
+/////////////////////////////////////////////
+// setting PWM properties
+const int freq = 5000;
+const int ledChannel = 0;
+const int ledChannel2 = 1;
+const int ledChannel3 = 2;
+const int resolution = 8;
+
+const int ledPin = 12;  // 16 corresponds to GPIO16
+const int ledPin2 = 13; // 17 corresponds to GPIO17
+const int ledPin3 = 14;  // 5 corresponds to GPIO5
+
+
+void setup() 
+{
+  RemoteXY_Init (); 
+  
+  
+  // TODO you setup code
+  // configure LED PWM functionalitites
+  ledcSetup(ledChannel, freq, resolution);
+  ledcSetup(ledChannel2, freq, resolution);
+  ledcSetup(ledChannel3, freq, resolution);
+  
+  
+  // attach the channel to the GPIO to be controlled
+  ledcAttachPin(ledPin, ledChannel);
+  ledcAttachPin(ledPin2, ledChannel2);
+  ledcAttachPin(ledPin3, ledChannel3);
+
+  Serial.begin(115200);
+}
+
+void loop() 
+{ 
+  RemoteXY_Handler ();
+  
+  
+  // TODO you loop code
+  // use the RemoteXY structure for data transfer
+  // do not call delay() 
+   ledcWrite(ledChannel3, RemoteXY.rgb_1_r);
+   ledcWrite(ledChannel, RemoteXY.rgb_1_g);
+   ledcWrite(ledChannel2, RemoteXY.rgb_1_b);
+
+   
+
+   Serial.print(RemoteXY.rgb_1_r);
+   Serial.print(" ");
+   Serial.print(RemoteXY.rgb_1_g);
+   Serial.print(" ");
+   Serial.print(RemoteXY.rgb_1_b);
+   Serial.println(" ");
+
+}
